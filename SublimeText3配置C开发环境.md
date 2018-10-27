@@ -1,4 +1,4 @@
-#Sublime text3配置C开发环境
+# Sublime text3配置C开发环境
 1. 打开Sublime text3。
 2. 在顶部工具栏按顺序打开：`Tools --> Build System --> New Build System...`。
 3. 然后在新建的配置文件中输入下面的json配置信息。
@@ -21,3 +21,4 @@
 		]
 }
 ```
+
