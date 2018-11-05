@@ -25,9 +25,10 @@ clock = pygame.time.Clock()
 hero_rect = pygame.Rect(190, 700, 100, 124)
 
 # 创建游戏精灵
-enemy = GameSprite("./image/enemy1.png")
+enemy1 = GameSprite("./image/enemy1.png", 2, (100, 100))
+enemy2 = GameSprite("./image/enemy1.png", 3, (200, 100))
 # 创建游戏精灵组
-enemy_group = pygame.sprite.Group(enemy)
+enemy_group = pygame.sprite.Group(enemy1, enemy2)
 
 
 # 游戏循环
