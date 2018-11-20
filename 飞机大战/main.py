@@ -13,6 +13,7 @@ class PlaneGame(object):
         self.__create_sprites()
         # 4. 设置定时器事件 - 创建敌机 1s
         pygame.time.set_timer(CREATE_ENEMY_EVENT, 1000)
+        pygame.time.set_timer(HERO_FIRE_EVENT, 500)
 
     def __create_sprites(self):
         # 创建背景精灵和精灵组
@@ -22,6 +23,9 @@ class PlaneGame(object):
 
         # 创建敌机的精灵组
         self.enemy_group = pygame.sprite.Group()
+        # 创建英雄的精灵和精灵组
+        self.hero = Hero()
+        self.hero_group = pygame.sprite.Group(self.hero)
 
     def start_game(self):
         """游戏开始"""
@@ -48,9 +52,29 @@ class PlaneGame(object):
                 enemy = Enemy()
                 # 将敌机精灵添加到敌机精灵组
                 self.enemy_group.add(enemy)
+            elif event.type == HERO_FIRE_EVENT:
+                self.hero.fire()
+            # elif event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
+            #     print("向右移动")
+        keys_pressed = pygame.key.get_pressed()
+        if keys_pressed[pygame.K_RIGHT]:
+            self.hero.speed = 5
+        elif keys_pressed[pygame.K_LEFT]:
+            self.hero.speed = -5
+        else:
+            self.hero.speed = 0
 
     def __check_collide(self):
-        pass
+        # 1. 子弹摧毁敌机
+        pygame.sprite.groupcollide(self.hero.bullets, self.enemy_group, True, True)
+        # 2. 敌机撞毁英雄
+        enemies = pygame.sprite.spritecollide(self.hero, self.enemy_group, True)
+        # 判断列表是否有内容
+        if len(enemies) > 0:
+            # 让英雄牺牲
+            self.hero.kill()
+            # 结束游戏
+            PlaneGame.__game_over()
 
     def __update_sprites(self):
         self.back_group.update()
@@ -58,6 +82,12 @@ class PlaneGame(object):
 
         self.enemy_group.update()
         self.enemy_group.draw(self.screen)
+
+        self.hero_group.update()
+        self.hero_group.draw(self.screen)
+
+        self.hero.bullets.update()
+        self.hero.bullets.draw(self.screen)
 
     @staticmethod
     def __game_over():
@@ -69,71 +99,3 @@ class PlaneGame(object):
 if __name__ == '__main__':
     game = PlaneGame()
     game.start_game()
-
-
-"""
-# 初始化pygame
-pygame.init()
-
-# 创建游戏窗口
-screen = pygame.display.set_mode((480, 852))
-
-# 绘制背景图像
-bg = pygame.image.load("./image/background.png").convert()
-screen.blit(bg, (0, 0))
-
-# 绘制英雄飞机
-hero = pygame.image.load("./image/hero1.png")
-screen.blit(hero, (200, 500))
-
-# 刷新显示
-pygame.display.update()
-
-# 创建时钟对象
-clock = pygame.time.Clock()
-
-# 定义飞机初始位置
-hero_rect = pygame.Rect(190, 700, 100, 124)
-
-# 创建游戏精灵
-enemy1 = GameSprite("./image/enemy1.png", 2, (100, 100))
-enemy2 = GameSprite("./image/enemy1.png", 3, (200, 100))
-# 创建游戏精灵组
-enemy_group = pygame.sprite.Group(enemy1, enemy2)
-
-
-# 游戏循环
-while True:
-
-    # 设置屏幕刷新帧率
-    clock.tick(60)
-
-    # 事件监听
-    for event in pygame.event.get():
-
-        # 判断用户是否点击了关闭按钮
-        if event.type == pygame.QUIT:
-            print("退出游戏...")
-            pygame.quit()
-
-            # 直接退出系统
-            exit()
-
-    # 改变飞机位置
-    if hero_rect.y < 0:
-        hero_rect.y += 6
-    else:
-        hero_rect.y -= 6
-
-    # 绘制到屏幕
-    screen.blit(bg, (0, 0))
-    screen.blit(hero, hero_rect)
-
-    enemy_group.update()
-    enemy_group.draw(screen)
-
-    # 更新显示
-    pygame.display.update()
-"""
-
-

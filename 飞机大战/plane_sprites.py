@@ -7,6 +7,8 @@ SCREEN_RECT = pygame.Rect(0, 0, 480, 852)
 FRAME_PER_SEC = 60
 # 创建敌机的定时器常量
 CREATE_ENEMY_EVENT = pygame.USEREVENT
+# 英雄发射子弹事件
+HERO_FIRE_EVENT = pygame.USEREVENT + 1
 
 
 class GameSprite(pygame.sprite.Sprite):
@@ -40,6 +42,7 @@ class Background(GameSprite):
         if self.rect.y > SCREEN_RECT.height:
             self.rect.y = -self.rect.height
 
+
 class Enemy(GameSprite):
     """敌机精灵"""
 
@@ -63,3 +66,59 @@ class Enemy(GameSprite):
 
     def __del__(self):
         print("敌机已销毁 %s" % self.rect)
+
+
+class Hero(GameSprite):
+    """英雄精灵"""
+
+    def __init__(self):
+        # 1. 调用父类方法，设置image&speed
+        super().__init__("./image/hero1.png", 0)
+        # 2. 设置英雄的初始位置
+        self.rect.centerx = SCREEN_RECT.centerx
+        self.rect.bottom = SCREEN_RECT.bottom - 120
+        # 3. 创建子弹的精灵组
+        self.bullets = pygame.sprite.Group()
+
+
+    def update(self):
+        # 英雄是在水平方向上移动的
+        self.rect.x += self.speed
+        # 控制英雄不能离开屏幕
+        if self.rect.x < 0:
+            self.rect.x = 0
+        elif self.rect.right > SCREEN_RECT.right:
+            self.rect.right = SCREEN_RECT.right
+
+    def fire(self):
+        """发射子弹"""
+
+        for i in(0, 1, 2):
+            # 1. 创建子弹精灵
+            bullet = Bullet()
+            # 2. 设置精灵的位置
+            bullet.rect.bottom = self.rect.y - i*30
+            bullet.rect.centerx = self.rect.centerx
+            # 3. 将精灵添加到精灵组
+            self.bullets.add(bullet)
+
+class Bullet(GameSprite):
+    """子弹精灵"""
+
+    def __init__(self):
+        super().__init__("./image/bullet1.png", -15)
+
+    def update(self):
+        # 1. 调用父类方法，保持向上飞行
+        super().update()
+        # 2. 判断是否飞出屏幕，如果是，需要从精灵组删除子弹
+        if self.rect.bottom < 0:
+            # 从精灵组中删除
+            self.kill()
+
+    def __del__(self):
+        """销毁精灵"""
+        print("Bullet 被销毁 %s" % self.rect)
+
+
+
